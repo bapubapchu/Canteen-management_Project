@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-form">
+            <h1>Lets Sign you in</h1>
+            <p class="subtitle">Welcome back,<br>You have been missed</p>
+            
+            <form id="loginForm">
+                <input type="text" placeholder="Email, phone & username" required>
+                <input type="password" placeholder="Password" required>
+                <a href="#" class="forgot-link">Forgot Password?</a>
+                <button type="submit" class="sign-in-btn">Sign in</button>
+            </form>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <div class="social-login">
+                <button class="social-btn google">G</button>
+                <button class="social-btn facebook">f</button>
+                <button class="social-btn apple"></button>
+            </div>
+            <!-- Find this section in your login form -->
+            <p class="switch-prompt">
+                <!-- Change the href to point to register.html -->
+                Don't have an account? <a href="register.html" class="switch-link">Register Now</a>
+
+             
+            </p>
+        </div>
+    </div>
+</body>
+</html>
