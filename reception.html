@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Reception - We value your opinion</title>
+<style>
+  :root{--accent:#00d65f}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#fff}
+  /* topbar styles */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid #eee;margin-bottom:18px}
+  .logo{display:flex;gap:8px;align-items:center}
+  .nav{display:flex;gap:18px;align-items:center}
+  .nav a{color:#333;text-decoration:none;font-weight:600}
+  .nav a.active{color:var(--accent)}
+  .nav a.sign{background:#ff9b2e;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none}
+  /* reception form styles */
+  .wrap{max-width:700px;margin:40px auto;padding:0 18px}
+  h1{text-align:center;color:#000;margin:0 0 24px;font-size:32px}
+  label{display:block;margin-top:12px;font-weight:700}
+  input, textarea{width:100%;padding:14px;border-radius:16px;border:1px solid #ddd;background:#f0f0f0;box-sizing:border-box}
+  textarea{height:160px;resize:vertical}
+  .btn{display:block;margin:20px auto 0;background:#00d65f;color:#fff;padding:12px 28px;border-radius:24px;border:0;cursor:pointer}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">
+      <div style="width:34px;height:20px;background:linear-gradient(90deg,#ffef00,#00d65f);border-radius:6px"></div>
+      <strong>Canteen</strong>
+    </div>
+    <nav class="nav">
+      <a href="place_order.html">ORDER</a>
+      <a href="order_list.html">ORDER LIST</a>
+      <a href="reception.html" class="active">RECEPTION</a>
+      <a href="login.html" style="color:#00a">log in</a>
+      <a href="sign_up.html" class="sign">SIGN UP</a>
+      <a href="#" style="color:#888">MENU</a>
+      <a href="#" style="color:#888">ABOUT</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <h1>We value your opinion</h1>
+
+    <label for="name">Name</label>
+    <input id="name" placeholder="Enter name" />
+
+    <label for="email">Email</label>
+    <input id="email" placeholder="Enter email" type="email" />
+
+    <label for="subject">Subject</label>
+    <input id="subject" placeholder="Enter subject" />
+
+    <label for="message">Message</label>
+    <textarea id="message" placeholder="Enter message"></textarea>
+
+    <button id="send" class="btn">Submit →</button>
+  </main>
+
+<script>
+const MSG_KEY = 'canteen_messages_v1';
+function readMsgs(){ try{ return JSON.parse(localStorage.getItem(MSG_KEY)||'[]'); }catch(e){return[]} }
+function writeMsgs(a){ localStorage.setItem(MSG_KEY, JSON.stringify(a)); }
+
+document.getElementById('send').addEventListener('click', ()=>{
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const message = document.getElementById('message').value.trim();
+  if(!name || !email || !message){ alert('Please fill name, email and message'); return; }
+  const msgs = readMsgs();
+  msgs.push({ id: Date.now().toString(), name, email, subject, message, at: new Date().toISOString() });
+  writeMsgs(msgs);
+  alert('Message sent. Thank you!');
+  document.getElementById('name').value=''; document.getElementById('email').value=''; document.getElementById('subject').value=''; document.getElementById('message').value='';
+});
+</script>
+</body>
+</html>

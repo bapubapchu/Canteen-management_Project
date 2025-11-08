@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Place Order</title>
+  <style>
+    :root{--accent:#00d65f;--bg:#fff6f6;--input:#dff9f6}
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#fff}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid #eee}
+    .logo{display:flex;gap:8px;align-items:center}
+    .nav{display:flex;gap:18px;align-items:center}
+    .nav a{color:#333;text-decoration:none;font-weight:600}
+    .nav a.active{color:var(--accent)}
+    .page{padding:40px;max-width:1100px;margin:0 auto;display:flex;gap:40px;align-items:flex-start}
+    .card{background:var(--bg);padding:36px;border-radius:6px;flex:1}
+    h1{color:var(--accent);margin:0 0 18px;font-size:28px}
+    label{display:block;color:#333;margin:10px 0 6px}
+    input[type="text"], input[type="number"], select{width:100%;padding:12px;border-radius:24px;border:0;background:var(--input);box-sizing:border-box}
+    .actions{margin-top:18px}
+    .btn{background:var(--accent);color:#fff;padding:10px 26px;border-radius:22px;border:0;cursor:pointer}
+    .link{margin-left:12px}
+    .list-card{flex:1.1;display:flex;flex-direction:column;justify-content:space-between}
+    .orders{background:#fff;padding:18px;border-radius:6px;min-height:220px;overflow:auto}
+    .order-item{display:flex;justify-content:space-between;padding:10px 6px;border-bottom:1px dashed #eee}
+    .meta{color:#444}
+    .footer-row{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+    .total{color:var(--accent);font-weight:700}
+    @media(max-width:900px){.page{flex-direction:column;padding:18px}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">
+      <div style="width:34px;height:20px;background:linear-gradient(90deg,#ffef00,#00d65f);border-radius:6px"></div>
+      <strong>Canteen</strong>
+    </div>
+    <nav class="nav">
+      <a href="place_order.html" class="active">ORDER</a>
+      <a href="order_list.html">ORDER LIST</a>
+      <a href="#" style="color:#888">MENU</a>
+      <a href="#" style="color:#888">ABOUT</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="card">
+      <h1>Place Your Order</h1>
+      <form id="orderForm">
+        <label for="customer">Your Name:</label>
+        <input id="customer" name="customer" type="text" placeholder="Enter name" required />
+
+        <label for="item">Select Item:</label>
+        <select id="item" name="item" required>
+          <option value="" disabled selected>-- choose item --</option>
+          <option value="Tea|20">Tea - Nu. 20</option>
+          <option value="Coffee|35">Coffee - Nu. 35</option>
+          <option value="Sandwich|80">Sandwich - Nu. 80</option>
+          <option value="Noodles|120">Noodles - Nu. 120</option>
+        </select>
+
+        <label for="qty">Quantity:</label>
+        <input id="qty" name="qty" type="number" min="1" value="1" required />
+
+        <div class="actions">
+          <button class="btn" type="submit">Submit</button>
+          <a class="link" href="order_list.html">View Orders →</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="card list-card">
+      <h1>Order List</h1>
+      <div class="orders" id="previewOrders">
+        <p class="meta">No orders yet. Submitted orders will appear in the Order List page.</p>
+      </div>
+
+      <div class="footer-row">
+        <div class="meta">Preview is read-only. Open the Order List page to manage orders.</div>
+        <div class="total" id="previewTotal">Total amount: Nu. 0</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const KEY = 'canteen_orders_v1';
+    function readOrders(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return [] } }
+    function writeOrders(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
+
+    const form = document.getElementById('orderForm');
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const name = document.getElementById('customer').value.trim();
+      const itemRaw = document.getElementById('item').value;
+      const qty = parseInt(document.getElementById('qty').value,10) || 1;
+      if(!name || !itemRaw) return;
+      const [itemName, priceStr] = itemRaw.split('|');
+      const price = Number(priceStr || 0);
+      const order = { id: Date.now().toString(), customer: name, item: itemName, qty, unitPrice: price, total: price*qty, placedAt: new Date().toISOString() };
+      const orders = readOrders(); orders.push(order); writeOrders(orders);
+      form.reset(); document.getElementById('qty').value = 1;
+      renderPreview();
+      alert('Order placed.');
+    });
+
+    function renderPreview(){
+      const list = readOrders();
+      const container = document.getElementById('previewOrders');
+      const totalEl = document.getElementById('previewTotal');
+      container.innerHTML = '';
+      if(list.length === 0){ container.innerHTML = '<p class="meta">No orders yet. Submitted orders will appear in the Order List page.</p>'; totalEl.textContent='Total amount: Nu. 0'; return; }
+      list.slice().reverse().forEach(o=>{
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML = '<div class="meta"><strong>'+escapeHtml(o.customer)+'</strong> — '+escapeHtml(o.item)+' x '+o.qty+'</div><div class="meta">Nu. '+(o.total)+'</div>';
+        container.appendChild(div);
+      });
+      const total = list.reduce((s,i)=>s + (i.total || 0),0);
+      totalEl.textContent = 'Total amount: Nu. ' + total;
+    }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    renderPreview();
+  </script>
+</body>
+</html>
